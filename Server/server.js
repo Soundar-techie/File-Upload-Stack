@@ -7,12 +7,28 @@ const path = require("path");
 const fs = require("fs");
 
 const app = express();
-// Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      process.env.CLIENT_URL
+    ].filter(Boolean);
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
-}));
+};
+
+// Middleware
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
