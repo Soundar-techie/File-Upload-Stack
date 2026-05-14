@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -6,7 +7,7 @@ const path = require("path");
 const fs = require("fs");
 
 const app = express();
-// ✅ Middleware
+// Middleware
 app.use(cors({
   origin: "http://localhost:3000",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -15,7 +16,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// ✅ Upload folder
+// Upload folder
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
@@ -23,18 +24,18 @@ if (!fs.existsSync(uploadsDir)) {
 
 app.use("/uploads", express.static(uploadsDir));
 
-// ✅ MongoDB connection
-mongoose.connect("mongodb://127.0.0.1:27017/fileuploaddb");
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URL);
 
 mongoose.connection.on("connected", () =>
-  console.log("✅ MongoDB connected")
+  console.log("MongoDB connected")
 );
 
 mongoose.connection.on("error", (err) =>
   console.error("❌ MongoDB error:", err)
 );
 
-// ✅ Schema
+// Schema
 const fileSchema = new mongoose.Schema({
   originalName: String,
   fileName: String,
@@ -46,7 +47,7 @@ const fileSchema = new mongoose.Schema({
 
 const File = mongoose.model("File", fileSchema);
 
-// ✅ Multer config
+// Multer config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => {
