@@ -9,7 +9,7 @@ const fs = require("fs");
 const app = express();
 // Middleware
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -25,14 +25,24 @@ if (!fs.existsSync(uploadsDir)) {
 app.use("/uploads", express.static(uploadsDir));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URL);
+if (process.env.MONGODB_URL) {
+  mongoose.connect(process.env.MONGODB_URL).catch((err) => {
+    console.error("❌ MongoDB error:", err.message);
+  });
+} else {
+  console.warn("⚠️ MONGODB_URL not set. Database features will not work.");
+}
 
 mongoose.connection.on("connected", () =>
-  console.log("MongoDB connected")
+  console.log("✅ MongoDB connected")
 );
 
 mongoose.connection.on("error", (err) =>
-  console.error("❌ MongoDB error:", err)
+  console.error("❌ MongoDB error:", err.message)
+);
+
+mongoose.connection.on("disconnected", () =>
+  console.log("⚠️ MongoDB disconnected")
 );
 
 // Schema
