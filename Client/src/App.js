@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const API = "http://localhost:5000";
+const API = process.env.BACKEND_URL || "http://localhost:5000";
 
 function formatBytes(bytes) {
   if (bytes === 0) return "0 B";
